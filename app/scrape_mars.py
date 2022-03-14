@@ -6,24 +6,75 @@ import datetime as dt
 from webdriver_manager.chrome import ChromeDriverManager
 
 
-def mars_browser():
+def initial_browser():
     # Initiate headless driver for deployment
-    executable_path = {'executable_path': '/usr/local/bin/chromedriver'}
+    executable_path = {'executable_path': ChromeDriverManager().install()}
     return Browser('chrome', **executable_path, headless=False)
+
+ def scrape_info():
+    browser = initial_browser()
+    mars_data = {}
+
+                # Mars News
+    # News URL 
+    news_url = 'https://mars.nasa.gov/news/'
+    browser.visit(news_url)
+    # Parse the resulting html with soup
+    news_html=browser.html
+    news_soup = soup(html, 'html.parser')
+    # Retrieve the latest news title and paragraph information
+    news_title = soup.find_all('div', class_='content_title').get_text()
+    news_paragraph = soup.find_all('div', class_='rollover_description_inner').get_text()
+
+                # Updated JPL Mars Space Image
+
+# Image URL
+    jpl_url="https://www.jpl.nasa.gov"
+    image_url="https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars"
+    browser.visit(image_url)
+    # Parse the resulting html with soup
+    img_html=browser.html
+    img_soup = soup(html, 'html.parser')
+    # find the relative image url
+    relative_url = image_soup.find_all('img')[3]["src"]
+    # Use the base url to create an absolute url
+    final_image_url = jpl_url + relative_url
+    
+
+                # Mars Fact
+
+    # Mars fun facts URL
+    facts_url='https://space-facts.com/mars/'
+    # use 'read_html' to scrape the facts table into a dataframe
+    facts_df=pd.read_html(facts_url[0])
+    # assign columns and set index of dataframe
+    facts_df.columns = ['Description', 'Mars', 'Earth']
+    facts_df.set_index('Description', inplace=True)
+    # Convert dataframe into HTML format
+    facts_html_df = facts_df.to_html()
+    fact_html_df.replace('\n','')
+
+
+    
+    
+            # Mars Hemispheres 
+
   
 
-def scrape_info():
-     executable_path = {'executable_path': '/usr/local/bin/chromedriver'}
-    browser = Browser('chrome', **executable_path, headless=False)
-    data = {
+    # Mars Dictionary
+   mars_data={
         "news_title": news_title,
         "news_paragraph": news_paragraph,
-        "featured_image": featured_image(browser),
-        "facts": mars_facts(),
+        "featured_image":  final_image_url,
+        "facts": str(fact_html_df),
         "hemispheres": hemispheres(browser),
         "last_modified": dt.datetime.now()
     }
-
-    # Stop webdriver and return data
+    # Close the browser after scraping
     browser.quit()
-    return data
+    return mars_data
+
+
+
+
+   
