@@ -55,10 +55,25 @@ def initial_browser():
     fact_html_df.replace('\n','')
 
 
-    
+
     
             # Mars Hemispheres 
 
+    # Mars hemisphere title and image
+    usgs_url = 'https://astrogeology.usgs.gov'
+    hemi_url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
+    browser.visit(hemi_url)
+    # Parse the resulting html with soup
+    hemi_html = browser.html
+    hemi_soup = soup(html_text, "html.parser")
+    # Extract hemisphere item elements
+    mars_hemisphere = hemi_soup.find('div', class_='collapsible results')
+    mars_item = mars_hemisphere.find_all('div', class_='item')
+    hemi_img_url = []
+
+    # Find the elements on each loop 
+    # for i in mars_item:
+          
   
 
     # Mars Dictionary
@@ -67,7 +82,7 @@ def initial_browser():
         "news_paragraph": news_paragraph,
         "featured_image":  final_image_url,
         "facts": str(fact_html_df),
-        "hemispheres": hemispheres(browser),
+        # "hemispheres": hemispheres,
         "last_modified": dt.datetime.now()
     }
     # Close the browser after scraping
@@ -77,4 +92,3 @@ def initial_browser():
 
 
 
-   
